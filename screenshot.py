@@ -5,7 +5,10 @@ import logging
 from botocore.exceptions import ClientError
 from selenium import webdriver
 from PIL import Image
-link = input ("Enter the Website link:") 
+link = input ("Enter the Website link:")
+#replace your bucket and region here
+bucket = "test-bucket-cb-2"
+region = "us-east-1" 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument('--disable-extensions')
 chrome_options.add_argument('--no-sandbox')
@@ -26,16 +29,16 @@ driver = webdriver.Remote(command_executor = 'http://localhost:4444/wd/hub',
 driver.get(link) 
 driver.save_screenshot("image_firefox.png")
 driver.quit()
-client = boto3.client('s3', region_name='us-east-1')
-client.upload_file('image_chrome.png', 'test-bucket-cb-2', 'image_chrome.png')
-client.upload_file('image_firefox.png', 'test-bucket-cb-2', 'image_firefox.png')
+client = boto3.client('s3', region_name=region)
+client.upload_file('image_chrome.png', bucket,'image_chrome.png')
+client.upload_file('image_firefox.png', bucket, 'image_firefox.png')
 # Get the service client.
 
 # Generate the URL to get 'key-name' from 'bucket-name'
 url1 = client.generate_presigned_url(
     ClientMethod='get_object',
     Params={
-        'Bucket': 'test-bucket-cb-2',
+        'Bucket': bucket,
         'Key': 'image_chrome.png'
     },
     ExpiresIn=1800)
@@ -46,7 +49,7 @@ response = requests.get(url1)
 url2 = client.generate_presigned_url(
     ClientMethod='get_object',
     Params={
-        'Bucket': 'test-bucket-cb-2',
+        'Bucket': bucket,
         'Key': 'image_firefox.png'
 		},
     ExpiresIn=1800)
